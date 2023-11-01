@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 // temp data: before use DB
@@ -38,7 +38,7 @@ const goods = [
 ];
 
 /**
- * uri: /api 
+ * uri: /api
  */
 
 const Goods = require("../schemas/goods.js");
@@ -55,7 +55,7 @@ router.get("/about", (req, res) => {
 // get all goods
 router.get("/goods", (req, res) => {
   // FIXME: return all goods from DB
-  res.json({ goods: goods});
+  res.json({ goods: goods });
 });
 
 // create new goods
@@ -85,7 +85,9 @@ router.post("/goods", async (req, res) => {
 // get specific goods
 router.get("/goods/:goodsId", (req, res) => {
   // return that goodsId == req.params.goodsId
-  res.json({ goods: goods.find((goods) => goods.goodsId == req.params.goodsId) });
+  res.json({
+    goods: goods.find((goods) => goods.goodsId == req.params.goodsId),
+  });
 });
 
 // add goods to cart
@@ -97,12 +99,58 @@ router.post("/goods/:goodsId/cart", async (req, res) => {
 
   const existsCarts = await Cart.find({ goodsId: Number(goodsId) });
   if (existsCarts.length) {
-    return res.json({ success: false, errorMessage: "이미 장바구니에 존재하는 상품입니다." });
+    return res.json({
+      success: false,
+      errorMessage: "이미 장바구니에 존재하는 상품입니다.",
+    });
+  }
+
+  if (quantity <= 0) {
+    return res.json({
+      success: false,
+      errorMessage: "상품의 개수는 1개 이상이어야 합니다.",
+    });
   }
 
   await Cart.create({ goodsId: Number(goodsId), quantity: quantity });
 
   res.json({ result: "success" });
+});
+
+// edit goods in cart
+router.put("/goods/:goodsId/cart", async (req, res) => {
+  const { goodsId } = req.params;
+  const { quantity } = req.body;
+
+  const existCarts = await Cart.find({ goodsId: Number(goodsId) });
+  if (!existCarts.length) {
+    return res.json({
+      success: false,
+      errorMessage: "장바구니에 존재하지 않는 상품입니다.",
+    });
+  }
+
+  if (quantity <= 0) {
+    return res.json({
+      success: false,
+      errorMessage: "상품의 개수는 1개 이상이어야 합니다.",
+    });
+  }
+
+  await Cart.updateOne({ goodsId: Number(goodsId) }, { quantity: quantity });
+  res.json({ success: true });
+});
+
+// delete goods in cart
+router.delete("/goods/:goodsId/cart", async (req, res) => {
+  const { goodsId } = req.params;
+  
+  const existCarts = await Cart.find({ goodsId: Number(goodsId) });
+  if (existCarts.length) {
+    await Cart.deleteOne({ goodsId: Number(goodsId) });
+  }
+
+  res.json({ success: true });
 });
 
 module.exports = router;
