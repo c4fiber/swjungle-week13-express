@@ -42,6 +42,7 @@ const goods = [
  */
 
 const Goods = require("../schemas/goods.js");
+const Cart = require("../schemas/cart.js");
 
 router.get("/", (req, res) => {
   res.send("default url for goods.js GET Method");
@@ -85,6 +86,23 @@ router.post("/goods", async (req, res) => {
 router.get("/goods/:goodsId", (req, res) => {
   // return that goodsId == req.params.goodsId
   res.json({ goods: goods.find((goods) => goods.goodsId == req.params.goodsId) });
+});
+
+// add goods to cart
+router.post("/goods/:goodsId/cart", async (req, res) => {
+  const { goodsId } = req.params;
+  const { quantity } = req.body;
+
+  console.log("quantity: ", quantity, "goodsId: ", goodsId);
+
+  const existsCarts = await Cart.find({ goodsId: Number(goodsId) });
+  if (existsCarts.length) {
+    return res.json({ success: false, errorMessage: "이미 장바구니에 존재하는 상품입니다." });
+  }
+
+  await Cart.create({ goodsId: Number(goodsId), quantity: quantity });
+
+  res.json({ result: "success" });
 });
 
 module.exports = router;
