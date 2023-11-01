@@ -1,19 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// localhost:3000/api/ GET
-router.get("/", (req, res) => {
-  res.send("default url for goods.js GET Method");
-});
-
-// localhost:3000/api/about GET
-router.get("/about", (req, res) => {
-  res.send("goods.js about PATH");
-});
-
-module.exports = router;
-
-// /routes/goods.js
+// temp data: before use DB
 const goods = [
   {
     goodsId: 4,
@@ -49,13 +37,54 @@ const goods = [
   },
 ];
 
-// localhost:3000/api/goods GET
+/**
+ * uri: /api 
+ */
+
+const Goods = require("../schemas/goods.js");
+
+router.get("/", (req, res) => {
+  res.send("default url for goods.js GET Method");
+});
+
+router.get("/about", (req, res) => {
+  res.send("goods.js about PATH");
+});
+
+// get all goods
 router.get("/goods", (req, res) => {
+  // FIXME: return all goods from DB
   res.json({ goods: goods});
 });
 
-// localhost:3000/api/goods/? GET
+// create new goods
+router.post("/goods", async (req, res) => {
+  const { goodsId, name, thumbnailUrl, category, price } = req.body;
+
+  const goods = await Goods.find({ goodsId });
+  if (goods.length) {
+    return res.status(409).json({ message: "already goodsId exists" });
+  }
+
+  try {
+    const newGoods = await Goods.create({
+      goodsId,
+      name,
+      thumbnailUrl,
+      category,
+      price,
+    });
+    res.json({ goods: newGoods });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// get specific goods
 router.get("/goods/:goodsId", (req, res) => {
   // return that goodsId == req.params.goodsId
   res.json({ goods: goods.find((goods) => goods.goodsId == req.params.goodsId) });
 });
+
+module.exports = router;
