@@ -20,8 +20,8 @@ const goods = [
     price: 2.2,
   },
   {
-    goodsId: 2,
-    name: "상품 2",
+    goodsId: 5,
+    name: "상품 5",
     thumbnailUrl:
       "https://cdn.pixabay.com/photo/2014/08/26/19/19/wine-428316_1280.jpg",
     category: "drink",
@@ -37,28 +37,39 @@ const goods = [
   },
 ];
 
+const Goods = require("../schemas/goods.js");
+const Cart = require("../schemas/cart.js");
+
 /**
  * uri: /api
  */
-
-const Goods = require("../schemas/goods.js");
-const Cart = require("../schemas/cart.js");
 
 router.get("/", (req, res) => {
   res.send("default url for goods.js GET Method");
 });
 
 router.get("/about", (req, res) => {
+  // add all goods into db
+  goods.forEach((item) => {
+    Goods.create(item);
+  });
+
   res.send("goods.js about PATH");
 });
 
-// get all goods
-router.get("/goods", (req, res) => {
-  // FIXME: return all goods from DB
+/**
+ * 상품 API
+ */
+
+router.get("/goods", async (req, res) => {
+  const goods = await Goods.find({});
+  if (goods.length === 0) {
+    res.status(404).json({ message: "goods not found" });
+  }
+
   res.json({ goods: goods });
 });
 
-// create new goods
 router.post("/goods", async (req, res) => {
   const { goodsId, name, thumbnailUrl, category, price } = req.body;
 
@@ -82,7 +93,6 @@ router.post("/goods", async (req, res) => {
   }
 });
 
-// get specific goods
 router.get("/goods/:goodsId", (req, res) => {
   // return that goodsId == req.params.goodsId
   res.json({
@@ -90,7 +100,28 @@ router.get("/goods/:goodsId", (req, res) => {
   });
 });
 
-// add goods to cart
+/**
+ * 장바구니 API
+ */
+
+router.get("/goods/carts", async (req, res) => {
+  const carts = await Cart.find({});
+  const goodsIds = carts.map((cart) => cart.goodsId);
+
+  const goods = await Goods.find({ goodsId: goodsIds });
+
+  const results = carts.map((cart) => {
+    return {
+      quantity: cart.quantity,
+      goods: goods.find((item) => item.goodsId === cart.goodsId)
+    };
+  });
+
+  res.json({
+    carts: results,
+  });
+});
+
 router.post("/goods/:goodsId/cart", async (req, res) => {
   const { goodsId } = req.params;
   const { quantity } = req.body;
@@ -117,7 +148,6 @@ router.post("/goods/:goodsId/cart", async (req, res) => {
   res.json({ result: "success" });
 });
 
-// edit goods in cart
 router.put("/goods/:goodsId/cart", async (req, res) => {
   const { goodsId } = req.params;
   const { quantity } = req.body;
@@ -141,7 +171,6 @@ router.put("/goods/:goodsId/cart", async (req, res) => {
   res.json({ success: true });
 });
 
-// delete goods in cart
 router.delete("/goods/:goodsId/cart", async (req, res) => {
   const { goodsId } = req.params;
   
