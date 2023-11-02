@@ -63,7 +63,7 @@ router.get("/about", (req, res) => {
 
 router.get("/goods", async (req, res) => {
   const goods = await Goods.find({});
-  if (goods.length === 0) {
+  if (goods.length) {
     res.status(404).json({ message: "goods not found" });
   }
 
