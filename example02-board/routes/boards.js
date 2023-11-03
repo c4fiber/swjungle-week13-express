@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Board = require("../schemas/post.js");
 
-// GET method to retrieve all posts
+// GET all posts
 router.get("/", (req, res) => {
   Board.find({})
   .then((posts) => { 
@@ -14,6 +14,7 @@ router.get("/", (req, res) => {
   });
 });
 
+// GET a post by id
 router.get("/:id", (req, res) => {
   const postId = req.params.id;
   Board.findOne({ _id: postId })
@@ -34,11 +35,12 @@ router.post("/", async (req, res) => {
     content: newPost.content,
     password: newPost.password,
   });
+
+  // check if the post already exists
   if (oldPost) {
     return res.status(409).json({ message: "Post already exists" });
   }
-
-  // check password field is exist or not
+  // if password is not provided, set it to null
   if (!newPost.password) {
     newPost.password = null;
   }
@@ -62,6 +64,7 @@ router.put("/:id", async (req, res) => {
   const postId = req.params.id;
   const updatedPost = req.body;
 
+  // TODO 데이터 업데이트를 확인하고 response를 보내줄지 말지 결정해야함.
   try {
     const post = await Board.findOneAndUpdate(
       { _id: postId },
@@ -86,13 +89,17 @@ router.delete("/:id", async (req, res) => {
   const password = req.body ? req.body.password : null;
 
   const post = await Board.findOne({ _id: postId });
+  // no post
   if (!post) {
     return res.status(404).json({ message: "Post not found" });
   }
+  // validate password
   if (post.password && post.password !== password) {
     return res.status(401).json({ message: "Password is incorrect" });
   }
 
+  // TODO 게시글 삭제를 진행하는데, 결과를 확인하고 response를 보내줄지
+  //      아니면 그냥 삭제를 진행할지 결정해야 함
   try {
     await Board.deleteOne({ _id: postId });
     res.json({ success: true });
@@ -100,7 +107,6 @@ router.delete("/:id", async (req, res) => {
     console.error(error);
     next(error);
   }
-
 });
 
 module.exports = router;
