@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { post } = require("../routes/boards");
 
 const postSchema = new mongoose.Schema({
   title: {
