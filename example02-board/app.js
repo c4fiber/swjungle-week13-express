@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = 3000;
 
@@ -9,14 +9,19 @@ app.use(express.json());
 const connect = require("./schemas");
 connect();
 
-/* default router */
-app.get('/', (req, res) => {
-  res.send('Welcome to tiny board system !!');
+/* default routing */
+app.get("/", (req, res) => {
+  res.send("Welcome to tiny board system !!");
 });
 
+/* router */
+const boardRounter = require("./routes/boards.js");
+const commentRounter = require("./routes/comments.js");
+
 /* board rounter */
-app.use("/boards", require("./routes/boards.js"));
+app.use("/boards", boardRounter);
+app.use("/boards/:postId/comments", commentRounter);
 
 app.listen(3000, () => {
-        console.log('Server started on port 3000');
+  console.log("Server started on port 3000");
 });
