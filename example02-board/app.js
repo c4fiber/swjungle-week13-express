@@ -21,7 +21,7 @@ const accountRounter = require("./routes/accounts.js");
 
 /* board rounter */
 app.use("/boards", boardRounter);
-app.use("/boards/:postId/comments", commentRounter);
+app.use("/comments", commentRounter);
 app.use("/accounts", accountRounter);
 
 app.listen(3000, () => {

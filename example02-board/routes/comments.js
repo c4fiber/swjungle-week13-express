@@ -13,10 +13,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// READ
-router.get("/", async (req, res) => {
+// get all comments by post id
+router.get("/:post_id", async (req, res) => {
   try {
-    const comments = await Comment.find();
+    const comments = await Comment.find({post_id: req.params.post_id});
     res.json(comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
