@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Board = require("../schemas/post.js");
+const Comment = require("../schemas/comment.js");
 
 // GET all posts
 router.get("/", (req, res) => {
@@ -106,6 +107,15 @@ router.delete("/:id", async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error(error);
+    next(error);
+  }
+
+  // TODO 사용자가 기다릴 필요가 없다. await 사용하지 않아도 됨.
+  // res.json() 호출만으로 클라이언트에게 response를 보내는지 확인해야 한다.
+  try {
+    Comment.deleteMany({ post_id: postId });
+  } catch (error) {
+    // TODO 댓글을 삭제하다가 실패하면 로그를 기록해야 한다.
     next(error);
   }
 });
