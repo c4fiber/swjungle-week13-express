@@ -6,12 +6,13 @@ const Board = require("../schemas/post.js");
 // GET all posts
 router.get("/", (req, res) => {
   Board.find({})
-  .then((posts) => { 
-    res.json({ posts: posts });
-  }).catch((err) => {
-    console.error(err);
-    next(err);
-  });
+    .then((posts) => {
+      res.json({ posts: posts });
+    })
+    .catch((err) => {
+      console.error(err);
+      next(err);
+    });
 });
 
 // GET a post by id
@@ -52,7 +53,7 @@ router.post("/", async (req, res) => {
       content: newPost.content,
       password: newPost.password,
     });
-    res.json({ post });
+    res.json({ post }); // 파라미터 이름과 동일하게 맞춰준다.
   } catch (error) {
     console.error(error);
     next(error);
