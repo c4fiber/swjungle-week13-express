@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
  * @swagger
  * components:
  *   schemas:
- *     account:
+ *     Account:
  *       type: object
  *       required:
  *         - id

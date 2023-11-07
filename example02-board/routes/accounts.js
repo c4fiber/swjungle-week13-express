@@ -2,7 +2,45 @@ const express = require("express");
 const router = express.Router();
 const Account = require("../schemas/account");
 
-// specific account
+
+/**
+ * @swagger
+ * tags:
+ *   name: Accounts
+ *   description: API for managing accounts
+ */
+
+/**
+ * @swagger
+ * /accounts/{id}:
+ *   get:
+ *     summary: Get a specific account by ID
+ *     tags: [Accounts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the account to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The account object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Account'
+ *       404:
+ *         description: Account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: account not found
+ */
 router.get("/:id", async (req, res, next) => {
   try {
     const account = await Account.findOne({ id: req.params.id });
@@ -16,7 +54,49 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-// account create
+/**
+ * @swagger
+ * /accounts:
+ *   post:
+ *     summary: Create a new account
+ *     tags: [Accounts]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID of the new account
+ *                 example: myusername
+ *               pwd:
+ *                 type: string
+ *                 description: Password of the new account
+ *                 example: mypassword
+ *               name:
+ *                 type: string
+ *                 description: Name of the new account
+ *                 example: John Doe
+ *     responses:
+ *       201:
+ *         description: The newly created account object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Account'
+ *       400:
+ *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: id length must be 3~12
+ */
 router.post("/", async (req, res, next) => {
   const { id, pwd, name } = req.body;
 

@@ -8,9 +8,6 @@
  *         - author
  *         - content
  *       properties:
- *         _id:
- *           type: string
- *           description: The auto-generated ID of the comment
  *         post_id:
  *           type: string
  *           description: The ID of the post that the comment belongs to
@@ -28,8 +25,10 @@
  *           type: string
  *           description: The password of the comment (if required)
  *       example:
- *         author: John Doe
- *         content: This is a comment
+ *         post_id: 65447544eeb746556bec7796
+ *         date: 2023-11-03T04:21:24.555+00:00
+ *         content: good day!
+ *         password: null
  */
 const mongoose = require("mongoose");
 

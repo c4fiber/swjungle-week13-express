@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
  * @swagger
  * components:
  *   schemas:
- *     post:
+ *     Post:
  *       type: object
  *       required:
  *         - title
@@ -26,7 +26,7 @@ const mongoose = require("mongoose");
  *         content:
  *           type: string
  *           description: 게시글 내용
- *        password:
+ *         password:
  *          type: string
  *          description: 게시글 비밀번호
  *       example:
