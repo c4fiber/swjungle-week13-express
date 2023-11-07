@@ -4,7 +4,29 @@ const router = express.Router();
 const Board = require("../schemas/post.js");
 const Comment = require("../schemas/comment.js");
 
-// GET all posts
+/**
+ * @swagger
+ * tags:
+ *   name: Boards
+ *   description: API for managing posts
+ */
+
+/**
+ * @swagger
+ * /boards:
+ *   get:
+ *     summary: Get all posts
+ *     tags: [Boards]
+ *     responses:
+ *       200:
+ *         description: A list of posts
+ *         content:
+ *           application/json:
+*              schema:
+ *               $ref: '#/components/schemas/Post'
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/", (req, res) => {
   Board.find({})
     .then((posts) => {
@@ -16,7 +38,31 @@ router.get("/", (req, res) => {
     });
 });
 
-// GET a post by id
+/**
+ * @swagger
+ * /boards/{id}:
+ *   get:
+ *     summary: Get a post by id
+ *     tags: [Boards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Post id
+ *     responses:
+ *       200:
+ *         description: A post object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/:id", (req, res) => {
   const postId = req.params.id;
   Board.findOne({ _id: postId })
@@ -28,7 +74,30 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// POST method to create a new post
+/**
+ * @swagger
+ * /boards:
+ *   post:
+ *     summary: Create a new post
+ *     tags: [Boards]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Post'
+ *     responses:
+ *       200:
+ *         description: A post object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       409:
+ *         description: Post already exists
+ *       500:
+ *         description: Internal server error
+ */
 router.post("/", async (req, res) => {
   const newPost = req.body;
   const oldPost = await Board.findOne({
@@ -61,7 +130,35 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT method to update an existing post
+/**
+ * @swagger
+ * /boards/{id}:
+ *   put:
+ *     summary: Update an existing post
+ *     tags: [Boards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Post id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Post'
+ *     responses:
+ *       200:
+ *         description: A post object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       500:
+ *         description: Internal server error
+ */
 router.put("/:id", async (req, res) => {
   const postId = req.params.id;
   const updatedPost = req.body;
@@ -85,7 +182,43 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE method to delete an existing post
+/**
+ * @swagger
+ * /boards/{id}:
+ *   delete:
+ *     summary: Delete an existing post
+ *     tags: [Boards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Post id
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Post'
+ *     responses:
+ *       200:
+ *         description: Success message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Whether the post was successfully deleted
+ *       401:
+ *         description: Password is incorrect
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete("/:id", async (req, res) => {
   const postId = req.params.id;
   const password = req.body ? req.body.password : null;
@@ -100,8 +233,6 @@ router.delete("/:id", async (req, res) => {
     return res.status(401).json({ message: "Password is incorrect" });
   }
 
-  // TODO 게시글 삭제를 진행하는데, 결과를 확인하고 response를 보내줄지
-  //      아니면 그냥 삭제를 진행할지 결정해야 함
   try {
     await Board.deleteOne({ _id: postId });
     res.json({ success: true });
@@ -110,12 +241,9 @@ router.delete("/:id", async (req, res) => {
     next(error);
   }
 
-  // TODO 사용자가 기다릴 필요가 없다. await 사용하지 않아도 됨.
-  // res.json() 호출만으로 클라이언트에게 response를 보내는지 확인해야 한다.
   try {
     Comment.deleteMany({ post_id: postId });
   } catch (error) {
-    // TODO 댓글을 삭제하다가 실패하면 로그를 기록해야 한다.
     next(error);
   }
 });
